@@ -318,3 +318,116 @@ int main() {
 
 ```
 ---
+
+## DAY4 内容
+
+#### 今日内容
+
+1. **双向链表**：
+
+* 创建一个双向链表，插入5个节点。节点数据为：10, 20, 30, 40, 50。
+* 实现以下功能：
+
+  * 打印链表（从头到尾）。
+  * 打印链表（从尾到头）。
+  * 删除链表中的头节点并打印链表内容。
+  * 删除链表中的尾节点并打印链表内容。
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {                                                                     // 定义双向链表节点结构
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+struct Node* create(int data) {                                                   // 创建新节点
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+void insert(struct Node** head, int data) {                                      // 插入节点到双向链表头部
+    struct Node* newNode = create(data);
+    newNode->next = *head;
+    if (*head != NULL) {
+        (*head)->prev = newNode;                                                 // 如果链表非空，更新头节点的prev指针
+    }
+    *head = newNode;
+}
+void Forward(struct Node* head) {                                                // 打印双向链表（从头到尾）
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d <-> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+void Backward(struct Node* head) {                                               // 打印双向链表（从尾到头）
+    struct Node* temp = head;
+    if (temp == NULL) return;
+    while (temp->next != NULL) {                                                 // 移动到链表的最后一个节点
+        temp = temp->next;
+    }
+    while (temp != NULL) {                                                       // 从尾到头遍历
+        printf("%d <-> ", temp->data);
+        temp = temp->prev;
+    }
+    printf("NULL\n");
+}
+void Head(struct Node** head) {                                                  // 删除头节点
+    if (*head == NULL) return;
+    struct Node* temp = *head;
+    *head = (*head)->next;
+    if (*head != NULL) {
+        (*head)->prev = NULL;                                                    // 更新新头节点的prev指针
+    }
+    free(temp);
+}
+void Tail(struct Node** head) {                                                  // 删除尾节点
+    if (*head == NULL) return;
+    struct Node* temp = *head;
+    while (temp->next != NULL) {                                                 // 移动到链表的最后一个节点
+        temp = temp->next;
+    }
+    if (temp->prev != NULL) {
+        temp->prev->next = NULL;                                                 // 更新倒数第二个节点的next指针
+    } else {
+        *head = NULL;                                                            // 如果链表只有一个节点，更新head为NULL
+    }
+    free(temp);
+}
+
+int main() {
+    struct Node* head = NULL;
+    insert(&head, 50);                  // 插入节点
+    insert(&head, 40);
+    insert(&head, 30);
+    insert(&head, 20);
+    insert(&head, 10);
+
+    printf("Forward Traversal: ");      // 打印双向链表（从头到尾）
+    Forward(head);
+
+    printf("Backward Traversal: ");    // 打印双向链表（从尾到头）
+    Backward(head);
+
+    Head(&head);                       // 删除头节点并打印链表
+    printf("After deleting head: ");
+    Forward(head);
+
+    Tail(&head);                       // 删除尾节点并打印链表
+    printf("After deleting tail: ");
+    Forward(head);
+
+    return 0;
+}
+// 输出：
+// Forward Traversal: 10 <-> 20 <-> 30 <-> 40 <-> 50 <-> NULL
+// Backward Traversal: 50 <-> 40 <-> 30 <-> 20 <-> 10 <-> NULL
+// After deleting head: 20 <-> 30 <-> 40 <-> 50 <-> NULL
+// After deleting tail: 20 <-> 30 <-> 40 <-> NULL
+```
