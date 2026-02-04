@@ -412,7 +412,7 @@ int main() {
     printf("Forward Traversal: ");      // 打印双向链表（从头到尾）
     Forward(head);
 
-    printf("Backward Traversal: ");    // 打印双向链表（从尾到头）
+    printf("Backward Traversal: ");     // 打印双向链表（从尾到头）
     Backward(head);
 
     Head(&head);                       // 删除头节点并打印链表
@@ -431,3 +431,107 @@ int main() {
 // After deleting head: 20 <-> 30 <-> 40 <-> 50 <-> NULL
 // After deleting tail: 20 <-> 30 <-> 40 <-> NULL
 ```
+---
+2. **循环链表**：
+
+* 创建一个单向循环链表，插入4个节点。节点数据为：1, 2, 3, 4。
+* 实现以下功能：
+
+  * 打印循环链表。
+  * 删除链表中的一个节点（比如删除数据为3的节点），并打印更新后的循环链表。
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {                                              // 定义单向循环链表节点结构
+    int data;
+    struct Node* next;
+};
+struct Node* create(int data) {                        // 创建新节点
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = newNode;                               // 初始化为指向自己，形成循环
+    return newNode;
+}
+
+void insert(struct Node** head, int data) {          // 插入节点到循环链表尾部
+    struct Node* newNode = create(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        struct Node* temp = *head;                        // 遍历到链表的最后一个节点
+        while (temp->next != *head) {
+            temp = temp->next;
+        }
+        temp->next = newNode;                             // 将最后一个节点的next指针指向新节点
+        newNode->next = *head;                            // 新节点指向头节点，形成循环
+    }
+}
+void print(struct Node* head) {                       // 打印循环链表
+    if (head == NULL) return;
+
+    struct Node* temp = head;
+    do {
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    } while (temp != head);                               // 如果回到头节点，则停止
+    printf("(head)\n");
+}
+void delete(struct Node** head, int data) {           // 删除指定节点
+    if (*head == NULL) return;
+
+    struct Node* temp = *head;
+    struct Node* prev = NULL;
+
+    if (temp->data == data) {                             // 如果头节点就是要删除的节点
+        if (temp->next == *head) {                        // 如果链表只有一个节点
+            free(temp);
+            *head = NULL;
+            return;
+        }
+        while (temp->next != *head) {                     // 否则，找到尾节点并删除头节点
+            temp = temp->next;
+        }
+        temp->next = (*head)->next;                       // 将尾节点的next指向新头节点
+        free(*head);
+        *head = (*head)->next;
+        return;
+    }
+    while (temp->next != *head && temp->data != data) {   // 找到要删除的节点
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp->data == data) {
+        prev->next = temp->next;
+        free(temp);
+    } else {
+        printf("Node with data %d not found.\n", data);
+    }
+}
+
+int main() {
+    struct Node* head = NULL;
+    // 插入4个节点
+    insert(&head, 1);
+    insert(&head, 2);
+    insert(&head, 3);
+    insert(&head, 4);
+    // 打印循环链表
+    printf("Original Circular Linked List: ");
+    print(head);
+    // 删除数据为3的节点
+    delete(&head, 3);
+    // 打印更新后的循环链表
+    printf("After deleting node with data 3: ");
+    print(head);
+
+    return 0;
+}
+// 输出：
+// Original Circular Linked List: 1 -> 2 -> 3 -> 4 -> (head)
+// After deleting node with data 3: 1 -> 2 -> 4 -> (head)
+```
+---
+3. 
