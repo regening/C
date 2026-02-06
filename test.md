@@ -534,93 +534,22 @@ int main() {
 // After deleting node with data 3: 1 -> 2 -> 4 -> (head)
 ```
 ---
-3. **链表的高级操作：合并链表、反转链表**:
+3. **合并两个有序链表**：
 
-* **3.1 合并两个有序链表**
+* 给定两个已排序的链表：
 
-    假设有两个已排序的链表，我们希望将它们合并为一个排序链表，将使用**归并**的方法。
-
+  * 链表1：1 → 3 → 5
+  * 链表2：2 → 4 → 6
+* 合并这两个链表并输出合并后的排序链表。
 ```c
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Node {
+struct Node {   // 定义链表节点结构
     int data;
     struct Node* next;
 };
-struct Node* create(int data) {                         // 创建新节点
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->next = NULL;
-    return newNode;
-}
-struct Node* merge(struct Node* l1, struct Node* l2) {   // 合并两个有序链表
-    struct Node* mergedHead = NULL;
-    struct Node** tail = &mergedHead;
-
-    while (l1 != NULL && l2 != NULL) {
-        if (l1->data <= l2->data) {
-            *tail = l1;
-            l1 = l1->next;
-        } else {
-            *tail = l2;
-            l2 = l2->next;
-        }
-        tail = &(*tail)->next;
-    }
-
-    if (l1 != NULL) {
-        *tail = l1;
-    } else {
-        *tail = l2;
-    }
-
-    return mergedHead;
-}
-void print(struct Node* head) {     // 打印链表
-    while (head != NULL) {
-        printf("%d -> ", head->data);
-        head = head->next;
-    }
-    printf("NULL\n");
-}
-
-int main() {
-    struct Node* list1 = create(1);
-    list1->next = create(3);
-    list1->next->next = create(5);
-
-    struct Node* list2 = create(2);
-    list2->next = create(4);
-    list2->next->next = create(6);
-
-    printf("List 1: ");
-    print(list1);
-    printf("List 2: ");
-    print(list2);
-
-    struct Node* mergedList = merge(list1, list2);
-    printf("Merged List: ");
-    print(mergedList);
-
-    return 0;
-}
-// 输出：
-// List 1: 1 -> 3 -> 5 -> NULL
-// List 2: 2 -> 4 -> 6 -> NULL
-// Merged List: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> NULL
-```
-* **3.2 反转链表**
-
-```c
-#include <stdio.h>
-#include <stdlib.h>
-
-struct Node {   // 定义单向链表节点结构
-    int data;
-    struct Node* next;
-};
-struct Node* create(int data) {    // 创建新节点
+struct Node* create(int data) {     // 创建新节点
     struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
     newNode->data = data;
     newNode->next = NULL;
@@ -647,33 +576,118 @@ void print(struct Node* head) {     // 打印链表
     }
     printf("NULL\n");
 }
-void reverse(struct Node** head) {   // 反转链表
+struct Node* merge(struct Node* l1, struct Node* l2) {   // 合并两个有序链表
+    struct Node* dummy = create(0);  // 创建一个虚拟头节点
+    struct Node* tail = dummy;
+
+    while (l1 != NULL && l2 != NULL) {
+        if (l1->data <= l2->data) {
+            tail->next = l1;
+            l1 = l1->next;
+        } else {
+            tail->next = l2;
+            l2 = l2->next;
+        }
+        tail = tail->next;
+    }
+    if (l1 != NULL) {    // 如果有剩余节点，直接连接
+        tail->next = l1;
+    } else {
+        tail->next = l2;
+    }
+
+    return dummy->next;  // 返回合并后的链表头节点
+}
+
+int main() {
+    struct Node* list1 = NULL;
+    struct Node* list2 = NULL;
+    insert(&list1, 1);     // 插入数据到两个有序链表
+    insert(&list1, 3);
+    insert(&list1, 5);
+    insert(&list2, 2);
+    insert(&list2, 4);
+    insert(&list2, 6);
+    printf("List 1: ");    // 打印两个原链表
+    print(list1);
+    printf("List 2: ");
+    print(list2);
+    struct Node* mergedList = merge(list1, list2);   // 合并两个有序链表
+    printf("Merged List: ");    // 打印合并后的链表
+    print(mergedList);
+
+    return 0;
+}
+// 输出：
+//List 1: 1 -> 3 -> 5 -> NULL
+// List 2: 2 -> 4 -> 6 -> NULL
+// Merged List: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> NULL
+```
+---
+
+4. **反转链表**：
+
+* 创建一个链表，插入5个节点。节点数据为：10, 20, 30, 40, 50。
+* 实现反转链表并打印反转后的链表内容。
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {   // 定义链表节点结构
+    int data;
+    struct Node* next;
+};
+struct Node* create(int data) {     // 创建新节点
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+
+void insert(struct Node** head, int data) {    // 插入节点到链表尾部
+    struct Node* newNode = create(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        struct Node* temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+    }
+}
+void print(struct Node* head) {     // 打印链表
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+void reverse(struct Node** head) {      // 反转链表
     struct Node *prev = NULL, *current = *head, *next = NULL;
-    
-    while (current != NULL) {  // 遍历链表，反转每个节点的指针方向
+
+    while (current != NULL) {
         next = current->next;  // 保存当前节点的下一个节点
         current->next = prev;  // 反转当前节点的指针
         prev = current;        // 移动prev到当前节点
         current = next;        // 移动current到下一个节点
     }
-    
-    *head = prev;    // 更新头节点
+
+    *head = prev;  // 更新头节点
 }
 
 int main() {
     struct Node* head = NULL;
-
-    insert(&head, 10);    // 插入节点
+    insert(&head, 10);    // 插入数据到链表
     insert(&head, 20);
     insert(&head, 30);
     insert(&head, 40);
     insert(&head, 50);
-
     printf("Original List: ");    // 打印原链表
     print(head);
-
     reverse(&head);    // 反转链表
-
     printf("Reversed List: ");    // 打印反转后的链表
     print(head);
 
@@ -683,4 +697,82 @@ int main() {
 // Original List: 10 -> 20 -> 30 -> 40 -> 50 -> NULL
 // Reversed List: 50 -> 40 -> 30 -> 20 -> 10 -> NULL
 ```
-  
+---
+
+**附加**：
+
+* **链表去重**：给定一个链表，去除链表中的重复元素。
+
+  * 例如：链表1 → 2 → 2 → 3 → 3 → 4，去重后的链表应为：1 → 2 → 3 → 4。
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+struct Node {   // 定义链表节点结构
+    int data;
+    struct Node* next;
+};
+struct Node* create(int data) {     // 创建新节点
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insert(struct Node** head, int data) {    // 插入节点到链表尾部
+    struct Node* newNode = create(data);
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        struct Node* temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+    }
+}
+void print(struct Node* head) {     // 打印链表
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+void remove(struct Node* head) {      // 删除链表中的重复节点
+    struct Node *current = head, *prev = NULL, *temp = NULL;
+
+    while (current != NULL && current->next != NULL) {
+        prev = current;
+        temp = current->next;
+        while (temp != NULL && temp->data == current->data) {        // 查找并删除所有重复节点
+            prev->next = temp->next;  // 删除重复节点
+            free(temp);
+            temp = prev->next;
+        }
+        current = current->next;
+    }
+}
+
+int main() {
+    struct Node* head = NULL;
+    insert(&head, 1);                              // 插入带有重复元素的数据
+    insert(&head, 2);
+    insert(&head, 2);
+    insert(&head, 3);
+    insert(&head, 3);
+    insert(&head, 4);
+    printf("Original List: ");                     // 打印链表
+    print(head);
+    remove(head);                                  // 去重链表
+    printf("List after removing duplicates: ");    // 打印去重后的链表
+    print(head);
+
+    return 0;
+}
+// 输出：
+// Original List: 1 -> 2 -> 2 -> 3 -> 3 -> 4 -> NULL
+// List after removing duplicates: 1 -> 2 -> 3 -> 4 -> NULL
+```
+---
